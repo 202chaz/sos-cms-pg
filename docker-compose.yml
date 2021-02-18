@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  strapi:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_NAME: strapi
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: strapi
+      DATABASE_PASSWORD: password
+    volumes:
+      - ./app:/srv/app
+    networks:
+      - strapi-app-network
+    ports:
+      - '1337:1337'
+    depends_on:
+      - postgres
+
+  postgres:
+    image: "postgres" # use latest official postgres version
+    environment:
+      POSTGRES_USER: strapi
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: strapi
+    volumes:
+      - postgres:/var/lib/postgresql/data/ # persist data even if container shuts down
+    networks:
+      - strapi-app-network
+
+networks:
+  strapi-app-network:
+    driver: bridge
+
+volumes:
+  postgres: # named volumes can be managed easier using docker-compose

@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    depends_on:
+      - strapi
+    restart: always # because it is routing traffic to our entire app
+    networks:
+      - strapi-app-network
+    ports:
+      - 80:80
+      - 443:443
+
+  strapi:
+    build:
+      context: ./app
+      dockerfile: Dockerfile.prod
+    env_file:
+      - ./envs/prod.env # configure postgres
+    volumes:
+      - ./app:/srv/app
+    networks:
+      - strapi-app-network
+    ports:
+      - '1337:1337'
+
+networks:
+  strapi-app-network:
+    driver: bridge
